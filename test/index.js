@@ -377,91 +377,159 @@
   };
   customElements.define("image-big", ImageBig);
 
+  // src/helpers/tools.js
+  function updateState(state, props) {
+    Object.entries(props).forEach(([key1, value1]) => {
+      if (typeof value1 === "object") {
+        Object.entries(value1).forEach(([key2, value2]) => {
+          if (typeof value2 === "object") {
+            if (key1 in state) {
+              if (key2 in state[key1]) {
+                props[key1][key2] = { ...state[key1][key2], ...value2 };
+              }
+              props[key1] = { ...state[key1], ...props[key1] };
+            }
+          }
+        });
+      }
+    });
+    return { ...state, ...props };
+  }
+  function getAnimation(animation) {
+    let data = `data-animation="${animation.animation}"`;
+    if ("delay" in animation) {
+      data = data.concat(` data-delay="${animation.delay}"`);
+    }
+    if ("speed" in animation) {
+      data = data.concat(` data-speed="${animation.speed}"`);
+    }
+    if ("repeat" in animation) {
+      data = data.concat(` data-repeat="${animation.repeat}"`);
+    }
+    return data;
+  }
+  function getClasses(obj) {
+    let classes = "";
+    if ("color" in obj)
+      classes = classes.concat(` ${obj.color}`);
+    if ("size" in obj)
+      classes = classes.concat(` ${obj.size}`);
+    if ("align" in obj)
+      classes = classes.concat(` ${obj.align}`);
+    if ("display" in obj)
+      classes = classes.concat(` ${obj.display}`);
+    if ("style" in obj)
+      classes = classes.concat(` ${obj.color}`);
+    if ("rounded" in obj && obj.rounded == true)
+      classes = classes.concat(` is-rounded`);
+    if ("fullwidth" in obj && obj.fullwidth == true)
+      classes = classes.concat(` is-fullwidth`);
+    return classes;
+  }
+
   // src/components/HeroBaner.js
   var HeroBaner = class extends HTMLElement {
-    constructor() {
-      super();
+    #default = { color: "is-primary", size: "is-fullheight", head: null, foot: null, align: "has-text-centered", title: { text: "Title", animation: { animation: "zoomIn" } }, subtitle: { text: "Subtitle", animation: { animation: "zoomIn", delay: "1s" } }, button: { color: "is-info", size: "is-medium", fullwidth: false, rounded: true, text: "Info", href: "#", animation: { animation: "heartBeat", repeat: "3" } } };
+    #head = (
+      /* html */
+      `
+        <div class="hero-head">
+            <nav class="navbar">
+            <div class="container">
+                <div class="navbar-brand">
+                <a class="navbar-item">
+                    <img src="https://bulma.io/images/bulma-type-white.png" alt="Logo">
+                </a>
+                <span class="navbar-burger" data-target="navbarMenuHeroB">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+                </div>
+                <div id="navbarMenuHeroB" class="navbar-menu">
+                <div class="navbar-end">
+                    <a class="navbar-item is-active">
+                    Home
+                    </a>
+                    <a class="navbar-item">
+                    Examples
+                    </a>
+                    <a class="navbar-item">
+                    Documentation
+                    </a>
+                    <span class="navbar-item">
+                    <a class="button is-info is-inverted">
+                        <span class="icon">
+                        <i class="fab fa-github"></i>
+                        </span>
+                        <span>Download</span>
+                    </a>
+                    </span>
+                </div>
+                </div>
+            </div>
+            </nav>
+        </div>
+    `
+    );
+    #foot = (
+      /* html */
+      `
+        <div class="hero-foot">
+        <nav class="tabs is-boxed is-fullwidth">
+            <div class="container">
+                <ul>
+                <li class="is-active">
+                    <a>Overview</a>
+                </li>
+                <li>
+                    <a>Modifiers</a>
+                </li>
+                <li>
+                    <a>Grid</a>
+                </li>
+                <li>
+                    <a>Elements</a>
+                </li>
+                <li>
+                    <a>Components</a>
+                </li>
+                <li>
+                    <a>Layout</a>
+                </li>
+                </ul>
+            </div>
+            </nav>
+        </div>
+    `
+    );
+    constructor(props = {}) {
+      super(props);
+      this.state = updateState(this.#default, props);
+    }
+    get getState() {
+      return this.state;
+    }
+    set setState(props) {
+      this.state = { ...this.state, ...props };
+      this.render();
     }
     render() {
       this.innerHTML = /* html */
       `
-        <section class="hero is-info is-large">
-            <div class="hero-head">
-                <nav class="navbar">
-                <div class="container">
-                    <div class="navbar-brand">
-                    <a class="navbar-item">
-                        <img src="https://bulma.io/images/bulma-type-white.png" alt="Logo">
-                    </a>
-                    <span class="navbar-burger" data-target="navbarMenuHeroB">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
-                    </div>
-                    <div id="navbarMenuHeroB" class="navbar-menu">
-                    <div class="navbar-end">
-                        <a class="navbar-item is-active">
-                        Home
-                        </a>
-                        <a class="navbar-item">
-                        Examples
-                        </a>
-                        <a class="navbar-item">
-                        Documentation
-                        </a>
-                        <span class="navbar-item">
-                        <a class="button is-info is-inverted">
-                            <span class="icon">
-                            <i class="fab fa-github"></i>
-                            </span>
-                            <span>Download</span>
-                        </a>
-                        </span>
-                    </div>
-                    </div>
-                </div>
-                </nav>
-            </div>
-
+        <section class="hero ${getClasses(this.state)}">           
+            ${this.state.head != null ? this.#head : ""}
             <div class="hero-body">
                 <div class="container has-text-centered">
-                <p class="title">
-                    Title
+                <p class="title" ${"animation" in this.state.title ? getAnimation(this.state.title.animation) : ""}>
+                    ${this.state.title.text}
                 </p>
-                <p class="subtitle">
-                    Subtitle
+                <p class="subtitle" ${"animation" in this.state.subtitle ? getAnimation(this.state.subtitle.animation) : ""}>
+                   ${this.state.subtitle.text}
                 </p>
-                <a class="button is-dark" href="#">Info</a>
+                <a class="button ${getClasses(this.state.button)}" href="${this.state.button.href}" ${"animation" in this.state.button ? getAnimation(this.state.button.animation) : ""}>${this.state.button.text}</a>
                 </div>
-            </div>
-
-            <div class="hero-foot">
-                <nav class="tabs is-boxed is-fullwidth">
-                <div class="container">
-                    <ul>
-                    <li class="is-active">
-                        <a>Overview</a>
-                    </li>
-                    <li>
-                        <a>Modifiers</a>
-                    </li>
-                    <li>
-                        <a>Grid</a>
-                    </li>
-                    <li>
-                        <a>Elements</a>
-                    </li>
-                    <li>
-                        <a>Components</a>
-                    </li>
-                    <li>
-                        <a>Layout</a>
-                    </li>
-                    </ul>
-                </div>
-                </nav>
-            </div>
+            </div>           
         </section>
         `;
     }
@@ -502,13 +570,26 @@
     constructor() {
       super();
     }
+    setupAnimation(el) {
+      var animation = " animate__animated animate__".concat(el.getAttribute("data-animation"));
+      if (el.hasAttribute("data-delay")) {
+        animation = animation.concat(" animate__delay-", el.getAttribute("data-delay"));
+      }
+      if (el.hasAttribute("data-speed")) {
+        animation = animation.concat(" animate__", el.getAttribute("data-speed"));
+      }
+      if (el.hasAttribute("data-repeat")) {
+        el.getAttribute("data-repeat") === "infinite" ? animation = animation.concat("animate__infinite") : animation = animation.concat(" animate__repeat-", el.getAttribute("data-repeat"));
+      }
+      el.className = el.className.concat(animation);
+    }
     render() {
       this.innerHTML = /* html */
       `        
         <div id="main"></div>
         `;
       const main = this.querySelector("#main");
-      const heroBanner = new HeroBaner();
+      const heroBanner = new HeroBaner({ color: "is-success", button: { text: "Hi", animation: { animation: "bounceIn" } } });
       main.append(heroBanner);
       const imageBig = new ImageBig();
       main.append(imageBig);
@@ -516,6 +597,23 @@
       main.append(imageText);
       const imageParallax = new ImageParallax();
       main.append(imageParallax);
+      let objs = document.querySelectorAll("[data-animation]");
+      var observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.setupAnimation(entry.target);
+            return;
+          }
+          entry.target.classList.forEach((_class) => {
+            if (_class.startsWith("animate__")) {
+              entry.target.classList.remove(_class);
+            }
+          });
+        });
+      });
+      objs.forEach((obj) => {
+        observer.observe(obj);
+      });
     }
     connectedCallback() {
       this.render();
