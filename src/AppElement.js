@@ -29,7 +29,7 @@ class AppElement extends HTMLElement {
         <div id="main"></div>
         `
         const main = this.querySelector('#main')
-        const heroBanner = new HeroBaner({color:"is-success",button:{text:"Hi",animation:{animation:"bounceIn"}}})
+        const heroBanner = new HeroBaner({color:"is-success",button:{text:"Hi",animation:{animation:"rotateIn"}},logo:"https://bulma.io/images/bulma-type-white.png",head:[{text:"Home",href:"#",active:true},{text:"Examples",href:"#"},{text:"Documentation",href:"#"},{text:"Download",href:"#"}],foot:[{text:"Overview",href:"#",active:true},{text:"Modifiers",href:"#"},{text:"Grid",href:"#"},{text:"Elements",href:"#"},{text:"Components",href:"#"}]})
         main.append(heroBanner)
         const imageBig = new ImageBig()
         main.append(imageBig)

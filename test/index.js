@@ -380,7 +380,7 @@
   // src/helpers/tools.js
   function updateState(state, props) {
     Object.entries(props).forEach(([key1, value1]) => {
-      if (typeof value1 === "object") {
+      if (typeof value1 === "object" && Array.isArray(value1) == false) {
         Object.entries(value1).forEach(([key2, value2]) => {
           if (typeof value2 === "object") {
             if (key1 in state) {
@@ -426,83 +426,70 @@
       classes = classes.concat(` is-fullwidth`);
     return classes;
   }
+  function getLinks(array) {
+    items = ``;
+    array.forEach((el) => {
+      items = items.concat(`<li${el.active ? ` class="is-active` : ""}><a href="${el.href}" >${el.text}</a></li>`);
+    });
+    return items;
+  }
+  function getNav(array) {
+    items = ``;
+    array.forEach((el) => {
+      items = items.concat(`<a class="navbar-item ${el.active ? ` is-active` : ""}"  href="${el.href}" >${el.text}</a>`);
+    });
+    return items;
+  }
 
   // src/components/HeroBaner.js
   var HeroBaner = class extends HTMLElement {
     #default = { color: "is-primary", size: "is-fullheight", head: null, foot: null, align: "has-text-centered", title: { text: "Title", animation: { animation: "zoomIn" } }, subtitle: { text: "Subtitle", animation: { animation: "zoomIn", delay: "1s" } }, button: { color: "is-info", size: "is-medium", fullwidth: false, rounded: true, text: "Info", href: "#", animation: { animation: "heartBeat", repeat: "3" } } };
-    #head = (
-      /* html */
-      `
-        <div class="hero-head">
-            <nav class="navbar">
-            <div class="container">
-                <div class="navbar-brand">
-                <a class="navbar-item">
-                    <img src="https://bulma.io/images/bulma-type-white.png" alt="Logo">
-                </a>
-                <span class="navbar-burger" data-target="navbarMenuHeroB">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-                </div>
-                <div id="navbarMenuHeroB" class="navbar-menu">
-                <div class="navbar-end">
-                    <a class="navbar-item is-active">
-                    Home
-                    </a>
+    getHead(logo, array) {
+      let head = (
+        /* html */
+        `
+            <div class="hero-head">
+                <nav class="navbar">
+                <div class="container">
+                    <div class="navbar-brand">
                     <a class="navbar-item">
-                    Examples
+                        <img src="${logo}" alt="Logo">
                     </a>
-                    <a class="navbar-item">
-                    Documentation
-                    </a>
-                    <span class="navbar-item">
-                    <a class="button is-info is-inverted">
-                        <span class="icon">
-                        <i class="fab fa-github"></i>
-                        </span>
-                        <span>Download</span>
-                    </a>
+                    <span class="navbar-burger" data-target="navbarMenuHeroB">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </span>
+                    </div>
+                    <div id="navbarMenuHeroB" class="navbar-menu">
+                    <div class="navbar-end">
+                       ${getNav(array)}
+                    </div>
+                    </div>
                 </div>
-                </div>
+                </nav>
             </div>
-            </nav>
-        </div>
-    `
-    );
-    #foot = (
-      /* html */
-      `
+        `
+      );
+      return head;
+    }
+    getFoot(array) {
+      let foot = (
+        /* html */
+        `
         <div class="hero-foot">
-        <nav class="tabs is-boxed is-fullwidth">
-            <div class="container">
-                <ul>
-                <li class="is-active">
-                    <a>Overview</a>
-                </li>
-                <li>
-                    <a>Modifiers</a>
-                </li>
-                <li>
-                    <a>Grid</a>
-                </li>
-                <li>
-                    <a>Elements</a>
-                </li>
-                <li>
-                    <a>Components</a>
-                </li>
-                <li>
-                    <a>Layout</a>
-                </li>
-                </ul>
-            </div>
+            <nav class="tabs">
+                <div class="container">
+                    <ul>
+                        ${getLinks(array)}
+                    </ul>
+                </div>
             </nav>
         </div>
     `
-    );
+      );
+      return foot;
+    }
     constructor(props = {}) {
       super(props);
       this.state = updateState(this.#default, props);
@@ -511,25 +498,26 @@
       return this.state;
     }
     set setState(props) {
-      this.state = { ...this.state, ...props };
+      this.state = updateState(this.state, props);
       this.render();
     }
     render() {
       this.innerHTML = /* html */
       `
         <section class="hero ${getClasses(this.state)}">           
-            ${this.state.head != null ? this.#head : ""}
+            ${this.state.head != null ? this.getHead(this.state.logo, this.state.head) : ""}
             <div class="hero-body">
                 <div class="container has-text-centered">
-                <p class="title" ${"animation" in this.state.title ? getAnimation(this.state.title.animation) : ""}>
-                    ${this.state.title.text}
-                </p>
-                <p class="subtitle" ${"animation" in this.state.subtitle ? getAnimation(this.state.subtitle.animation) : ""}>
-                   ${this.state.subtitle.text}
-                </p>
-                <a class="button ${getClasses(this.state.button)}" href="${this.state.button.href}" ${"animation" in this.state.button ? getAnimation(this.state.button.animation) : ""}>${this.state.button.text}</a>
+                    <p class="title" ${"animation" in this.state.title ? getAnimation(this.state.title.animation) : ""}>
+                        ${this.state.title.text}
+                    </p>
+                    <p class="subtitle" ${"animation" in this.state.subtitle ? getAnimation(this.state.subtitle.animation) : ""}>
+                    ${this.state.subtitle.text}
+                    </p>
+                    <a class="button ${getClasses(this.state.button)}" href="${this.state.button.href}" ${"animation" in this.state.button ? getAnimation(this.state.button.animation) : ""}>${this.state.button.text}</a>
                 </div>
-            </div>           
+            </div> 
+            ${this.state.foot != null ? this.getFoot(this.state.foot) : ""}          
         </section>
         `;
     }
@@ -589,7 +577,7 @@
         <div id="main"></div>
         `;
       const main = this.querySelector("#main");
-      const heroBanner = new HeroBaner({ color: "is-success", button: { text: "Hi", animation: { animation: "bounceIn" } } });
+      const heroBanner = new HeroBaner({ color: "is-success", button: { text: "Hi", animation: { animation: "rotateIn" } }, logo: "https://bulma.io/images/bulma-type-white.png", head: [{ text: "Home", href: "#", active: true }, { text: "Examples", href: "#" }, { text: "Documentation", href: "#" }, { text: "Download", href: "#" }], foot: [{ text: "Overview", href: "#", active: true }, { text: "Modifiers", href: "#" }, { text: "Grid", href: "#" }, { text: "Elements", href: "#" }, { text: "Components", href: "#" }] });
       main.append(heroBanner);
       const imageBig = new ImageBig();
       main.append(imageBig);

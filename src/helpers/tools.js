@@ -1,6 +1,6 @@
 function updateState(state, props){
     Object.entries(props).forEach(([key1, value1])=>{
-        if (typeof value1 === 'object'){
+        if (typeof value1 === 'object'&&Array.isArray(value1)==false){
             Object.entries(value1).forEach(([key2, value2])=>{
                 if (typeof value2 === 'object'){
                     if (key1 in state){
@@ -42,6 +42,23 @@ function getClasses(obj){
     return classes
 }
 
+function getLinks(array){
+    items = ``
+    array.forEach(el=>{
+        items = items.concat(`<li${el.active?` class="is-active`:""}><a href="${el.href}" >${el.text}</a></li>`)
+       })
+    return items
+}
+
+function getNav(array){
+    items = ``
+    array.forEach(el=>{
+        items = items.concat(`<a class="navbar-item ${el.active?` is-active`:""}"  href="${el.href}" >${el.text}</a>`)
+       })
+    return items
+}
 
 
-export {updateState, getAnimation, getClasses}
+
+
+export {updateState, getAnimation, getClasses, getLinks, getNav}
