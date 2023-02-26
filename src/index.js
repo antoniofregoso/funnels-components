@@ -1,4 +1,4 @@
-import { AppElement } from "./AppElement"
+import { App } from "./app";
 
-const App = new AppElement()
-document.body.appendChild(App)
+let app = new App();
+app.init();

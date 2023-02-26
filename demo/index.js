@@ -304,39 +304,91 @@
     }
   });
 
-  // src/components/ImageText.js
-  var import_simple_parallax_js = __toESM(require_simpleParallax_min());
-  var ImageText = class extends HTMLElement {
+  // src/components/ux.js
+  function whithAnimations() {
+    let objs = document.querySelectorAll("[data-animation]");
+    let options = { threshold: 0.1 };
+    var observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setupAnimation(entry.target);
+          return;
+        }
+        entry.target.classList.forEach((_class) => {
+          if (_class.startsWith("animate__")) {
+            entry.target.classList.remove(_class);
+          }
+        });
+      });
+    });
+    objs.forEach((obj) => {
+      observer.observe(obj);
+    });
+  }
+  function setupAnimation(el) {
+    var animation = " animate__animated animate__".concat(el.getAttribute("data-animation"));
+    if (el.hasAttribute("data-delay")) {
+      animation = animation.concat(" animate__delay-", el.getAttribute("data-delay"));
+    }
+    if (el.hasAttribute("data-speed")) {
+      animation = animation.concat(" animate__", el.getAttribute("data-speed"));
+    }
+    if (el.hasAttribute("data-repeat")) {
+      el.getAttribute("data-repeat") === "infinite" ? animation = animation.concat("animate__infinite") : animation = animation.concat(" animate__repeat-", el.getAttribute("data-repeat"));
+    }
+    el.className = el.className.concat(animation);
+  }
+
+  // src/components/FunnelElement.js
+  var FunnelElement = class extends HTMLElement {
     constructor() {
       super();
     }
+  };
+  customElements.define("funnel-element", FunnelElement);
+
+  // src/components/ImegeText.js
+  var import_simple_parallax_js = __toESM(require_simpleParallax_min());
+  var ImageText = class extends FunnelElement {
+    textAlign = this.getAttribute("text-align") || "left";
+    imagePosition = this.getAttribute("image-position") || "left";
+    imageWidth = this.getAttribute("image-width") || "half";
+    constructor() {
+      super();
+    }
+    image = (
+      /* html */
+      `
+            <figure class="image">
+                <img src="https://source.unsplash.com/random/?people">
+            </figure>
+    `
+    );
+    text = (
+      /* html */
+      `
+            <h2 class="subtitle">Hola</h2>
+            <h1 class="title" data-animation="lightSpeedInRight">Large section</h1>
+            <p >
+                A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading.
+            </p>
+    `
+    );
     render() {
       this.innerHTML = /* html */
       `
-        <section class="section has-text-centered">
-        <h1 class="title">Section</h1>
-            <h2 class="subtitle">
-                A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading.
-            </h2>
-            <div class="columns is-vcentered">
-                <div class="column">
-                <figure class="image">
-                    <img src="https://source.unsplash.com/random/?city,night">
-                </figure>
-                </div>
-                <div class="column">
-                    <div class="content has-text-left">
-                        <h1>Hello World</h1>
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim eum tempora error tenetur consequuntur alias impedit quos delectus nobis et ad inventore, eveniet quidem quia ea. Aspernatur cum atque maxime!</p>
-                    </div>
-                    <a class="button is-info" href="#">Info</a>
-                </div>
+            <section class="section has-background-primary columns is-medium">
+            <div class="column">
+                ${this.imagePosition === "right" ? this.text : this.image}
             </div>
-        </section>
-        `;
+            <div class="column">
+            ${this.imagePosition === "right" ? this.image : this.text}
+            </div>
+            </section>
+    `;
       var image = this.querySelector("img");
       new import_simple_parallax_js.default(image, {
-        orientation: "left"
+        orientation: "right"
       });
     }
     connectedCallback() {
@@ -345,273 +397,23 @@
   };
   customElements.define("image-text", ImageText);
 
-  // src/components/ImageBig.js
-  var import_simple_parallax_js2 = __toESM(require_simpleParallax_min());
-  var ImageBig = class extends HTMLElement {
+  // src/app.js
+  var App = class {
     constructor() {
-      super();
-    }
-    render() {
-      this.innerHTML = /* html */
+      this.page = /* html */
       `
-        <section class="section has-text-centered">
-        <h1 class="title">Section</h1>
-            <h2 class="subtitle">
-                A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading.
-            </h2>
-            <figure class="image">
-                <img src="https://source.unsplash.com/random/?nature">
-            </figure>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic eius velit ex neque accusantium sapiente, perferendis distinctio dolorem illo laboriosam dignissimos consectetur aliquam voluptate non perspiciatis ea eligendi architecto doloribus.</p>
-            </div>
-        </section>
-        `;
-      var image = this.querySelector("img");
-      new import_simple_parallax_js2.default(image, {
-        orientation: "right"
-      });
-    }
-    connectedCallback() {
-      this.render();
-    }
-  };
-  customElements.define("image-big", ImageBig);
-
-  // src/helpers/tools.js
-  function updateState(state, props) {
-    Object.entries(props).forEach(([key1, value1]) => {
-      if (typeof value1 === "object" && Array.isArray(value1) == false) {
-        Object.entries(value1).forEach(([key2, value2]) => {
-          if (typeof value2 === "object") {
-            if (key1 in state) {
-              if (key2 in state[key1]) {
-                props[key1][key2] = { ...state[key1][key2], ...value2 };
-              }
-              props[key1] = { ...state[key1], ...props[key1] };
-            }
-          }
-        });
-      }
-    });
-    return { ...state, ...props };
-  }
-  function getAnimation(animation) {
-    let data = `data-animation="${animation.animation}"`;
-    if ("delay" in animation) {
-      data = data.concat(` data-delay="${animation.delay}"`);
-    }
-    if ("speed" in animation) {
-      data = data.concat(` data-speed="${animation.speed}"`);
-    }
-    if ("repeat" in animation) {
-      data = data.concat(` data-repeat="${animation.repeat}"`);
-    }
-    return data;
-  }
-  function getClasses(obj) {
-    let classes = "";
-    if ("color" in obj)
-      classes = classes.concat(` ${obj.color}`);
-    if ("size" in obj)
-      classes = classes.concat(` ${obj.size}`);
-    if ("align" in obj)
-      classes = classes.concat(` ${obj.align}`);
-    if ("display" in obj)
-      classes = classes.concat(` ${obj.display}`);
-    if ("style" in obj)
-      classes = classes.concat(` ${obj.color}`);
-    if ("rounded" in obj && obj.rounded == true)
-      classes = classes.concat(` is-rounded`);
-    if ("fullwidth" in obj && obj.fullwidth == true)
-      classes = classes.concat(` is-fullwidth`);
-    return classes;
-  }
-  function getLinks(array) {
-    items = ``;
-    array.forEach((el) => {
-      items = items.concat(`<li${el.active ? ` class="is-active` : ""}><a href="${el.href}" >${el.text}</a></li>`);
-    });
-    return items;
-  }
-  function getNav(array) {
-    items = ``;
-    array.forEach((el) => {
-      items = items.concat(`<a class="navbar-item ${el.active ? ` is-active` : ""}"  href="${el.href}" >${el.text}</a>`);
-    });
-    return items;
-  }
-
-  // src/components/HeroBaner.js
-  var HeroBaner = class extends HTMLElement {
-    #default = { color: "is-primary", size: "is-fullheight", head: null, foot: null, align: "has-text-centered", title: { text: "Title", animation: { animation: "zoomIn" } }, subtitle: { text: "Subtitle", animation: { animation: "zoomIn", delay: "1s" } }, button: { color: "is-info", size: "is-medium", fullwidth: false, rounded: true, text: "Info", href: "#", animation: { animation: "heartBeat", repeat: "3" } } };
-    getHead(logo, array) {
-      let head = (
-        /* html */
-        `
-            <div class="hero-head">
-                <nav class="navbar">
-                <div class="container">
-                    <div class="navbar-brand">
-                    <a class="navbar-item">
-                        <img src="${logo}" alt="Logo">
-                    </a>
-                    <span class="navbar-burger" data-target="navbarMenuHeroB">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
-                    </div>
-                    <div id="navbarMenuHeroB" class="navbar-menu">
-                    <div class="navbar-end">
-                       ${getNav(array)}
-                    </div>
-                    </div>
-                </div>
-                </nav>
-            </div>
-        `
-      );
-      return head;
-    }
-    getFoot(array) {
-      let foot = (
-        /* html */
-        `
-        <div class="hero-foot">
-            <nav class="tabs">
-                <div class="container">
-                    <ul>
-                        ${getLinks(array)}
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    `
-      );
-      return foot;
-    }
-    constructor(props = {}) {
-      super(props);
-      this.state = updateState(this.#default, props);
-    }
-    get getState() {
-      return this.state;
-    }
-    set setState(props) {
-      this.state = updateState(this.state, props);
-      this.render();
-    }
-    render() {
-      this.innerHTML = /* html */
-      `
-        <section class="hero ${getClasses(this.state)}">           
-            ${this.state.head != null ? this.getHead(this.state.logo, this.state.head) : ""}
-            <div class="hero-body">
-                <div class="container has-text-centered">
-                    <p class="title" ${"animation" in this.state.title ? getAnimation(this.state.title.animation) : ""}>
-                        ${this.state.title.text}
-                    </p>
-                    <p class="subtitle" ${"animation" in this.state.subtitle ? getAnimation(this.state.subtitle.animation) : ""}>
-                    ${this.state.subtitle.text}
-                    </p>
-                    <a class="button ${getClasses(this.state.button)}" href="${this.state.button.href}" ${"animation" in this.state.button ? getAnimation(this.state.button.animation) : ""}>${this.state.button.text}</a>
-                </div>
-            </div> 
-            ${this.state.foot != null ? this.getFoot(this.state.foot) : ""}          
-        </section>
+            <image-text image-position="right"></image-text>
         `;
     }
-    connectedCallback() {
-      this.render();
+    init() {
+      document.querySelector("#app").innerHTML = this.page;
+      whithAnimations();
     }
   };
-  customElements.define("hero-baner", HeroBaner);
-
-  // src/components/ImageParallax.js
-  var import_simple_parallax_js3 = __toESM(require_simpleParallax_min());
-  var ImageParallax = class extends HTMLElement {
-    constructor() {
-      super();
-    }
-    render() {
-      this.innerHTML = /* html */
-      `
-        <section class="section">
-                <figure class="image">
-                    <img src="https://source.unsplash.com/random/?people">
-                </figure>
-        </section>
-        `;
-      var image = this.querySelector("img");
-      new import_simple_parallax_js3.default(image, {
-        orientation: "up right"
-      });
-    }
-    connectedCallback() {
-      this.render();
-    }
-  };
-  customElements.define("image-paralax", ImageParallax);
-
-  // src/AppElement.js
-  var AppElement = class extends HTMLElement {
-    constructor() {
-      super();
-    }
-    setupAnimation(el) {
-      var animation = " animate__animated animate__".concat(el.getAttribute("data-animation"));
-      if (el.hasAttribute("data-delay")) {
-        animation = animation.concat(" animate__delay-", el.getAttribute("data-delay"));
-      }
-      if (el.hasAttribute("data-speed")) {
-        animation = animation.concat(" animate__", el.getAttribute("data-speed"));
-      }
-      if (el.hasAttribute("data-repeat")) {
-        el.getAttribute("data-repeat") === "infinite" ? animation = animation.concat("animate__infinite") : animation = animation.concat(" animate__repeat-", el.getAttribute("data-repeat"));
-      }
-      el.className = el.className.concat(animation);
-    }
-    render() {
-      this.innerHTML = /* html */
-      `        
-        <div id="main"></div>
-        `;
-      const main = this.querySelector("#main");
-      const heroBanner = new HeroBaner({ color: "is-success", button: { text: "Hi", animation: { animation: "rotateIn" } }, logo: "https://bulma.io/images/bulma-type-white.png", head: [{ text: "Home", href: "#", active: true }, { text: "Examples", href: "#" }, { text: "Documentation", href: "#" }, { text: "Download", href: "#" }], foot: [{ text: "Overview", href: "#", active: true }, { text: "Modifiers", href: "#" }, { text: "Grid", href: "#" }, { text: "Elements", href: "#" }, { text: "Components", href: "#" }] });
-      main.append(heroBanner);
-      const imageBig = new ImageBig();
-      main.append(imageBig);
-      const imageText = new ImageText();
-      main.append(imageText);
-      const imageParallax = new ImageParallax();
-      main.append(imageParallax);
-      let objs = document.querySelectorAll("[data-animation]");
-      var observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            this.setupAnimation(entry.target);
-            return;
-          }
-          entry.target.classList.forEach((_class) => {
-            if (_class.startsWith("animate__")) {
-              entry.target.classList.remove(_class);
-            }
-          });
-        });
-      });
-      objs.forEach((obj) => {
-        observer.observe(obj);
-      });
-    }
-    connectedCallback() {
-      this.render();
-    }
-  };
-  customElements.define("app-element", AppElement);
 
   // src/index.js
-  var App = new AppElement();
-  document.body.appendChild(App);
+  var app = new App();
+  app.init();
 })();
 /*! Bundled license information:
 

@@ -4,9 +4,9 @@
   "description": "HTML components to create marketing funnels and dashboards using the Bulma CSS Framework",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/index.js --bundle --minify --outfile=test/index.js",
+    "build": "esbuild src/index.js --bundle --minify --outfile=public/index.js",
     "scss": "sass src/scss/index.scss test/assets.css",
-    "test": "esbuild src/index.js --bundle --outfile=test/index.js"
+    "demo": "esbuild src/index.js --bundle --outfile=demo/index.js"
   },
   "repository": {
     "type": "git",
