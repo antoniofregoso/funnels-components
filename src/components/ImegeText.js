@@ -43,9 +43,7 @@ export class ImageText extends FunnelElement {
 
     }
 
-    connectedCallback(){
-        this.render();
-    }  
+    
 
 }
 

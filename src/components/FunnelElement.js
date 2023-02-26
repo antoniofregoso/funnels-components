@@ -3,6 +3,10 @@ export class FunnelElement extends HTMLElement {
         super()
     }
 
+    connectedCallback(){
+        this.render();
+    }  
+
 }
 
 customElements.define("funnel-element", FunnelElement)

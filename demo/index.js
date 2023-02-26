@@ -344,6 +344,9 @@
     constructor() {
       super();
     }
+    connectedCallback() {
+      this.render();
+    }
   };
   customElements.define("funnel-element", FunnelElement);
 
@@ -390,9 +393,6 @@
       new import_simple_parallax_js.default(image, {
         orientation: "right"
       });
-    }
-    connectedCallback() {
-      this.render();
     }
   };
   customElements.define("image-text", ImageText);
