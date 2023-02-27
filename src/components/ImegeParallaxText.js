@@ -30,7 +30,7 @@ export class ImageParallaxText extends FunnelElement {
             <p >${this.state.message.text}</p>
             `
         this.innerHTML = /* html */`
-            <section class="section has-background-primary columns is-vcentered is-medium">
+            <section class="section has-background-primary columns is-medium">
             <div class="column">
                 ${this.imagePosition==='right'?text:img}
             </div>
