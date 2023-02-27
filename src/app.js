@@ -1,10 +1,10 @@
 import { whithAnimations} from "./components/ux";
-import { ImageText } from "./components/ImegeText";
+import { ImageParallaxText } from "./components/ImegeParallaxText";
 
 export class App {
     constructor() {
         this.page = /* html */`
-            <image-text image-position="right"></image-text>
+            <image-parallax-text image-position="right" vcentered></image-paralax-text>
         `
     }
 

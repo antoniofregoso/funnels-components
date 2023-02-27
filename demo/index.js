@@ -341,8 +341,19 @@
 
   // src/components/FunnelElement.js
   var FunnelElement = class extends HTMLElement {
-    constructor() {
+    #default = {};
+    constructor(props) {
       super();
+      this.state = {};
+    }
+    initState(base, props) {
+      let state = {};
+      props === void 0 ? state = base : state = { ...base, ...props };
+      return state;
+    }
+    setState(props) {
+      this.state = { ...this.#default, ...props };
+      this.render();
     }
     connectedCallback() {
       this.render();
@@ -350,42 +361,49 @@
   };
   customElements.define("funnel-element", FunnelElement);
 
-  // src/components/ImegeText.js
+  // src/components/ImegeParallaxText.js
   var import_simple_parallax_js = __toESM(require_simpleParallax_min());
-  var ImageText = class extends FunnelElement {
+  var ImageParallaxText = class extends FunnelElement {
+    vcentered = this.getAttribute("vcentered") || false;
     textAlign = this.getAttribute("text-align") || "left";
     imagePosition = this.getAttribute("image-position") || "left";
     imageWidth = this.getAttribute("image-width") || "half";
-    constructor() {
+    #default = {
+      image: { src: "https://source.unsplash.com/random/?people" },
+      title: { text: "Tile" },
+      subtitle: { text: "Subtitle" },
+      message: { text: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Et quibusdam error enim, sapiente corporis ut ab incidunt quos voluptate porro facilis distinctio quae magnam dicta sequi, quia quaerat labore odio?" }
+    };
+    constructor(props = {}) {
       super();
+      this.state = this.initState(this.#default, props);
     }
-    image = (
-      /* html */
-      `
-            <figure class="image">
-                <img src="https://source.unsplash.com/random/?people">
-            </figure>
-    `
-    );
-    text = (
-      /* html */
-      `
-            <h2 class="subtitle">Hola</h2>
-            <h1 class="title" data-animation="lightSpeedInRight">Large section</h1>
-            <p >
-                A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading.
-            </p>
-    `
-    );
     render() {
+      console.log(this.vcentered);
+      let img = (
+        /* html */
+        `
+            <figure class="image">
+                <img src="${this.state.image.src}">
+            </figure>
+            `
+      );
+      let text = (
+        /* html */
+        `
+            <h2 class="subtitle">${this.state.subtitle.text}</h2>
+            <h1 class="title" >${this.state.title.text}</h1>
+            <p >${this.state.message.text}</p>
+            `
+      );
       this.innerHTML = /* html */
       `
-            <section class="section has-background-primary columns is-medium">
+            <section class="section has-background-primary columns ${this.vcentered === true ? "is-vcentered" : ""}is-medium">
             <div class="column">
-                ${this.imagePosition === "right" ? this.text : this.image}
+                ${this.imagePosition === "right" ? text : img}
             </div>
             <div class="column">
-            ${this.imagePosition === "right" ? this.image : this.text}
+            ${this.imagePosition === "right" ? img : text}
             </div>
             </section>
     `;
@@ -395,14 +413,14 @@
       });
     }
   };
-  customElements.define("image-text", ImageText);
+  customElements.define("image-parallax-text", ImageParallaxText);
 
   // src/app.js
   var App = class {
     constructor() {
       this.page = /* html */
       `
-            <image-text image-position="right"></image-text>
+            <image-parallax-text image-position="right" vcentered></image-paralax-text>
         `;
     }
     init() {
